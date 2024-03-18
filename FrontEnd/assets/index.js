@@ -4,14 +4,15 @@ async function initFilters() {
     // Sélectionne le formulaire des filtres par son ID
     const filterForm = document.querySelector("#projectOrganization");
     // Effectue une requête pour obtenir les catégories depuis l'API
-    const response = await fetch("http://localhost:5678/api/categories");
-
+    const response = await fetch("http://localhost:5678/api/categories");  // Autre appel à l’API .
+    
     // Vérifie si la réponse est un succès (code 200)
     if (response.status === 200) {
       // Récupère les catégories au format JSON
       const categories = await response.json();
      
-      // Crée un bouton "Tous" pour afficher toutes les catégories
+      // Crée un bouton "Tous" pour afficher toutes les catégories // 
+      // Préservation d’une option de menu permettant d’afficher tous les travaux, comme par défaut.
       const buttonAll = document.createElement("button");
       buttonAll.className = "projectSelection";
       buttonAll.type = "submit";
@@ -28,16 +29,16 @@ async function initFilters() {
         buttonFilter.textContent = category.name;
         filterForm.appendChild(buttonFilter);
       }
-      // Retourne les catégories récupérées
+    
       return categories;
 
     } else {
-      // Affiche une erreur si la réponse n'est pas un succès
+    
       console.error(response.status, response);
     }
 
   } catch (error) {
-    // Capture et affiche toute erreur survenue lors de l'exécution
+
     console.error(error);
   }
 }
@@ -46,7 +47,7 @@ async function initFilters() {
 async function initProjects() {
   try {
     // Effectue une requête pour obtenir les projets depuis l'API
-    const response = await fetch("http://localhost:5678/api/works");
+    const response = await fetch("http://localhost:5678/api/works"); // Appel à l’API avec la fonction fetch afin de récupérer dynamiquement les projets de l’architecte.
 
     // Vérifie si la réponse est un succès (code 200)
     if (response.status === 200) {
@@ -58,12 +59,12 @@ async function initProjects() {
       // Retourne la liste des projets récupérée
       return worksList;
     } else {
-      // Affiche une erreur si la réponse n'est pas un succès
+  
       console.error(response.status, response);
     }
 
   } catch (error) {
-    // Capture et affiche toute erreur survenue lors de l'exécution
+   
     console.error(error);
   }
 }
@@ -87,10 +88,10 @@ function filterProjects(projectId, worksList) {
 
   // Filtre la liste des projets en fonction de l'ID de la catégorie sélectionnée
   filteredWorksList = worksList.filter((project) => {
-    if (projectId === "0") {
+    if (projectId === "0") { //   signifie que l'utilisateur a sélectionné l'option "Tous", et donc tous les projets doivent être affichés
       return true;
     } else {
-      return projectId == project.categoryId;
+      return projectId == project.categoryId; // filtre la liste des projets en fonction de l'ID de la catégorie sélectionnée
     }
   });
 
@@ -130,13 +131,19 @@ function createInterfaceForLoggedUsers(worksList, categories) {
       modifyButton.querySelector("p").style.color = "#000000";
     }
 
+    // Masque les boutons de filtre en mode éditions
+    const filterButtons = document.querySelectorAll(".projectSelection");
+    for (const button of filterButtons) {
+      button.style.display = "none";
+    }
+
     // Masque la galerie modale
     document.querySelector("#modal-gallery").style.display = "none";
 
     // Ajoute un événement pour activer la galerie modale
-    const activateModal = document.querySelector("#start-modal");
+    const activateModal = document.querySelector("#start-modal"); // La modale se déclenche au clic sur le bouton Modifier
     activateModal.addEventListener("click", function displayModal() {
-      document.querySelector("#modal-gallery").style.display = "flex";
+      document.querySelector("#modal-gallery").style.display = "flex"; 
       document.querySelector("#modal-wrapper").style.display = "flex";
       const modalGallery = document.querySelector("#modal-wrapper");
       modalGallery.innerHTML = `
@@ -154,8 +161,8 @@ function createInterfaceForLoggedUsers(worksList, categories) {
         document.querySelector("#modal-wrapper").style.display = "none";
         document.querySelector("#modal-wrapper").innerHTML = "";
       }
-      document.querySelector(".fa-solid.fa-xmark").addEventListener("click", closeModal);
-      document.querySelector("#modal-gallery").addEventListener("click", closeModal);
+      document.querySelector(".fa-solid.fa-xmark").addEventListener("click", closeModal); // Fermeture de la modale au clic sur la croix.
+      document.querySelector("#modal-gallery").addEventListener("click", closeModal); // Fermeture de la modale au clic en dehors de la modale.
 
       // Affiche les projets dans la galerie modale
       function displayWorksOnModal() {
@@ -167,7 +174,8 @@ function createInterfaceForLoggedUsers(worksList, categories) {
           document.getElementById("modal-elements").appendChild(modalElement);
 
           // Ajoute un événement pour supprimer un projet depuis la galerie modale
-          modalElement.querySelector(".delete-work").addEventListener("click", async function deleteSingleWork() {
+          // Suppression de travaux existants
+          modalElement.querySelector(".delete-work").addEventListener("click", async function deleteSingleWork() { 
             const workId = modalElement.querySelector(".delete-work").getAttribute("data-id");
 
             try {
@@ -263,7 +271,7 @@ function createInterfaceForLoggedUsers(worksList, categories) {
             event.preventDefault();
 
             let inputImage = document.getElementById('picture');
-            if (inputImage.files.length == 0)
+            if (inputImage.files.length == 0) // // Vérifie si aucun fichier n'a été sélectionné dans le champ d'upload d'image du formulaire
             {
               alert("Veuillez ajouter une photo !");
               return false;
@@ -273,7 +281,8 @@ function createInterfaceForLoggedUsers(worksList, categories) {
             let formData = new FormData(form);
 
             // Envoie une requête pour ajouter un nouveau projet
-            const response = await fetch("http://localhost:5678/api/works", {
+            const response = await fetch("http://localhost:5678/api/works", { // Envoi d’un nouveau projet au back-end via le formulaire de la modale
+            
               method: "POST",
               headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -286,19 +295,19 @@ function createInterfaceForLoggedUsers(worksList, categories) {
               let newObjectToAdd = await response.json();
               newObjectToAdd.categoryId = parseInt(newObjectToAdd.categoryId);
               worksList.push(newObjectToAdd);
-              refreshProjects(worksList);
-              displayModal();
+              refreshProjects(worksList);    // L’ajout dynamique du projet dans la galerie après l’envoi du formulaire.
+              displayModal(); // affiche la galerie modale avec le nouveau projet ajouté.
 
             } else if (response.status === 400) {
               console.error("Bad Request", response);
-              alert("Veuillez remplir tous les champs !");
+              alert("Veuillez remplir tous les champs !"); // Message d’erreur si le formulaire n’est pas correctement rempli.
             } else if (response.status === 401) {
               console.error("Unauthorized", response);
             } else if (response.status === 500) {
               console.error("Unexpected Error", response);
             }
           } catch (error) {
-            // Capture et affiche toute erreur survenue lors de l'exécution
+          
             console.error(error);
           }
         });
@@ -339,7 +348,7 @@ async function index() {
     createInterfaceForLoggedUsers(worksList, categories);
 
   } catch (error) {
-    // Capture et affiche toute erreur survenue lors de l'exécution
+ 
     console.error(error);
   }
 }

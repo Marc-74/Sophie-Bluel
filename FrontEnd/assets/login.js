@@ -3,7 +3,7 @@ document.getElementById("login-form").addEventListener("submit", async function 
     try {
         event.preventDefault(); // Empêcher le comportement par défaut du formulaire
 
-        // Récupération des valeurs des champs email et mot de passe
+        // Récupération des valeurs des champs email et mot de passe // Requête qui permet d’envoyer les valeurs des entrées de mon formulaire
         const emailInputValue = document.getElementById("email-input").value;
         const passwordInputValue = document.getElementById("password-input").value;
 
@@ -22,12 +22,12 @@ document.getElementById("login-form").addEventListener("submit", async function 
         // Traitement de la réponse en fonction du statut HTTP
         if (response.status === 200) { // Si la connexion est réussie (statut 200)
             const loginData = await response.json(); 
-            localStorage.setItem("token", loginData.token); 
-            window.location.href = "./index.html"; 
+            localStorage.setItem("token", loginData.token); // Stockage du token d'authentification
+            window.location.href = "./index.html"; // Redirection vers la page d’accueil
         } else if (response.status === 401) { 
-            alert("Mot de passe erroné !", response.statusText); 
+            alert("Mot de passe erroné !", response.statusText); // Connexion fausse // Si la combinaison est fausse prévenir l’utilisateur (message d’erreur)
         } else if (response.status === 404) { 
-            alert("Email ou mot de passe incorrect !", response.statusText); 
+            alert("Email ou mot de passe incorrect !", response.statusText); // Si la combinaison est fausse prévenir l’utilisateur (message d’erreur)
         } else { // Pour tout autre statut indéfini
             alert("Status indéfini !"); 
         }
